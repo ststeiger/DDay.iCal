@@ -14,7 +14,9 @@ https://en.wikipedia.org/wiki/ICalendar#Events_.28VEVENT.29
 https://www.calendarwiz.com/knowledgebase/entry/71/
 https://answers.microsoft.com/en-us/outlook_com/forum/all/how-to-publish-an-outlookcom-calendar-as-an-ical/9fad5765-6b3d-43d6-9950-5211588a3c52
 
+
 https://stackoverflow.com/questions/356598/delete-calendar-event-using-icalendar-file-import-outlook-2003-problem
+https://stackoverflow.com/questions/461889/sending-outlook-meeting-requests-without-outlook
 
 
 https://github.com/rianjs/ical.net
