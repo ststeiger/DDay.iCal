@@ -14,25 +14,8 @@
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\DDay.iCal.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -68,8 +51,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs">
@@ -78,30 +59,6 @@
     <Compile Include="Interfaces\IGroupedValueCollection.cs" />
     <Compile Include="Interfaces\IGroupedCollection.cs" />
     <Compile Include="Interfaces\Proxies\IGroupedValueListProxy.cs" />
-    <Compile Include="Net35Emulation\Action.cs" />
-    <Compile Include="Net35Emulation\TimeZone\AdjustmentRule.cs" />
-    <Compile Include="Net35Emulation\Enumerable\Check.cs" />
-    <Compile Include="Net35Emulation\TimeZone\DataMemberAttribute.cs" />
-    <Compile Include="Net35Emulation\Enumerable\Enumerable.cs" />
-    <Compile Include="Net35Emulation\ExtensionAttribute.cs" />
-    <Compile Include="Net35Emulation\Funcs.cs" />
-    <Compile Include="Net35Emulation\Enumerable\Grouping.cs" />
-    <Compile Include="Net35Emulation\Enumerable\HashPrimeNumbers.cs" />
-    <Compile Include="Net35Emulation\Enumerable\HashSet.cs" />
-    <Compile Include="Net35Emulation\Enumerable\IGrouping.cs" />
-    <Compile Include="Net35Emulation\Enumerable\ILookup_T.cs" />
-    <Compile Include="Net35Emulation\Enumerable\IOrderedEnumerable_T.cs" />
-    <Compile Include="Net35Emulation\TimeZone\InvalidTimeZoneException.cs" />
-    <Compile Include="Net35Emulation\Enumerable\Lookup.cs" />
-    <Compile Include="Net35Emulation\Enumerable\OrderedEnumerable.cs" />
-    <Compile Include="Net35Emulation\Enumerable\OrderedSequence.cs" />
-    <Compile Include="Net35Emulation\Enumerable\QuickSort.cs" />
-    <Compile Include="Net35Emulation\Enumerable\SortContext.cs" />
-    <Compile Include="Net35Emulation\Enumerable\SortDirection.cs" />
-    <Compile Include="Net35Emulation\Enumerable\SortSequenceContext.cs" />
-    <Compile Include="Net35Emulation\TimeZone\TransitionTime.cs" />
-    <Compile Include="Net35Emulation\TimeZone\TimeZoneInfo.cs" />
-    <Compile Include="Net35Emulation\TimeZone\TimeZoneNotFoundException.cs" />
     <Compile Include="Proxies\GroupedCollectionProxy.cs" />
     <Compile Include="Interfaces\IGroupedList.cs" />
     <Compile Include="Interfaces\IGroupedObject.cs" />
@@ -117,7 +74,10 @@
     <Compile Include="Interfaces\Proxies\IGroupedCollectionProxy.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\..\System.Linq\System.Linq.csproj">
+      <Project>{0b98982f-8a48-4aba-b006-e53e2fdcffe4}</Project>
+      <Name>System.Linq</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

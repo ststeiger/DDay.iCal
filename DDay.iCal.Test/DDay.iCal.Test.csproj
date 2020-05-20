@@ -55,7 +55,7 @@
   <ItemGroup>
     <Reference Include="antlr.runtime, Version=2.7.6.2, Culture=neutral, PublicKeyToken=1790ba318ebc5d56, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\antlr.runtime.dll</HintPath>
+      <HintPath>..\antlr\antlr.runtime\bin\antlr.runtime.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821">
       <SpecificVersion>False</SpecificVersion>
@@ -149,6 +149,10 @@
     <ProjectReference Include="..\DDay.iCal\DDay.iCal.csproj">
       <Project>{F88DB6D3-CB95-4707-9C88-B53403AADC61}</Project>
       <Name>DDay.iCal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\System.Linq\System.Linq.csproj">
+      <Project>{0b98982f-8a48-4aba-b006-e53e2fdcffe4}</Project>
+      <Name>System.Linq</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -360,6 +364,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Calendars\Recurrence\WeeklyInterval1.ics">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Calendars\Recurrence\WeeklyWeekStartsLastYear.ics">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Calendars\Recurrence\Monthly1.ics">
@@ -634,8 +641,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-  </PropertyGroup>
 </Project>

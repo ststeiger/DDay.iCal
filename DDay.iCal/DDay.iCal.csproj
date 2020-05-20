@@ -36,6 +36,9 @@
     <ApplicationVersion>0.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\DDay.iCal.snk</AssemblyOriginatorKeyFile>
+    <NoWarn>1572,1573,1574,1591,1734</NoWarn>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -61,21 +64,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="antlr.runtime, Version=2.7.6.2, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\antlr.runtime.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compatibility\BrowsableAttribute.cs" />
@@ -281,13 +270,20 @@
     <Content Include="License.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Readme.txt" />
     <Content Include="Serialization\iCalendar\iCalParserTokenTypes.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\antlr.runtime\antlr.runtime.csproj">
+      <Project>{cb7cc882-ed47-46c0-aaae-7a437f22f1c6}</Project>
+      <Name>antlr.runtime</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DDay.Collections\DDay.Collections\DDay.Collections.csproj">
       <Project>{E04EFEB6-4625-4D58-AC91-7B8B8A2C97BB}</Project>
       <Name>DDay.Collections</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\System.Linq\System.Linq.csproj">
+      <Project>{0b98982f-8a48-4aba-b006-e53e2fdcffe4}</Project>
+      <Name>System.Linq</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -298,10 +294,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>
