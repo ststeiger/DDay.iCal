@@ -38,7 +38,7 @@ using System.Reflection.Emit;
 
 namespace System.Linq.Expressions {
 
-	public abstract class Expression {
+	public abstract partial class Expression {
 
 		ExpressionType node_type;
 		Type type;
@@ -49,6 +49,8 @@ namespace System.Linq.Expressions {
 		internal const BindingFlags AllInstance = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
 		internal const BindingFlags AllStatic = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 		internal const BindingFlags All = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+
+
 
 		public ExpressionType NodeType {
 			get { return node_type; }

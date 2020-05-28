@@ -1,4 +1,5 @@
 ﻿
+using CoreDb;
 using DDay.iCal;
 using DDay.iCal.Serialization.iCalendar;
 using System;
@@ -6,6 +7,21 @@ using System;
 namespace TestTimeZone
 {
 
+    public class MyClass
+    {
+        public int Id;
+        public string Name;
+        public decimal Value;
+
+        public MyClass()
+        {
+            Id = 123;
+            Name = "Test";
+            Value = 200;
+        }
+
+
+    }
 
     static class Program
     {
@@ -40,7 +56,29 @@ namespace TestTimeZone
             System.Windows.Forms.Application.EnableVisualStyles();
             System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
             System.Windows.Forms.Application.Run(new Form1());
-#endif 
+#endif
+
+
+            // Todo: Fix ExpressionVisitor and BinaryExpression.cs->EmitBinaryOperator
+            // System.Linq.Expressions.ExpressionType.Assign
+            MyClass mc = new MyClass();
+            Getter_t<MyClass>[] gets = LinqHelper.GetGetters<MyClass>();
+            Setter_t<MyClass>[] sets = LinqHelper.GetSetters<MyClass>();
+
+            System.Console.WriteLine(gets);
+
+            sets[0](mc, 666);
+
+
+            object obj1 = gets[0](mc);
+            object obj2 = gets[1](mc);
+            object obj3 = gets[2](mc);
+            System.Console.WriteLine(obj1);
+            System.Console.WriteLine(obj2);
+            System.Console.WriteLine(obj3);
+
+
+            System.Console.WriteLine(sets);
 
             iCalendar iCal = new iCalendar();
 

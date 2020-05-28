@@ -39,7 +39,164 @@ using System.Reflection.Emit;
 
 namespace System.Linq.Expressions {
 
-	public sealed class BinaryExpression : Expression {
+
+	public abstract partial class Expression
+	{
+		public static void RequiresCanRead(Expression expression, string paramName)
+		{
+			RequiresCanRead(expression, paramName, -1);
+		}
+
+		public static void RequiresCanRead(Expression expression, string paramName, int idx)
+		{
+			// ContractUtils.RequiresNotNull(expression, paramName, idx);
+			if (expression == null)
+				throw new ArgumentNullException("expression cannot be null");
+
+			if (paramName == null)
+				throw new ArgumentNullException("paramName cannot be null");
+
+
+
+			// validate that we can read the node
+			switch (expression.NodeType)
+			{
+				//case ExpressionType.Index:
+				//	IndexExpression index = (IndexExpression)expression;
+				//	if (index.Indexer != null && !index.Indexer.CanRead)
+				//	{
+				//		throw Error.ExpressionMustBeReadable(paramName, idx);
+				//	}
+				//	break;
+				case ExpressionType.MemberAccess:
+					MemberExpression member = (MemberExpression)expression;
+					PropertyInfo prop = member.Member as PropertyInfo;
+					if (prop != null)
+					{
+						if (!prop.CanRead)
+						{
+							// throw Error.ExpressionMustBeReadable(paramName, idx);
+							throw new ArgumentException(string.Format("Expression {0}[{1}] must be Readable", paramName, idx));
+						}
+					}
+					break;
+			}
+		}
+
+
+		private static void RequiresCanWrite(Expression expression, string paramName)
+		{
+			if (expression == null)
+			{
+				throw new ArgumentNullException(paramName);
+			}
+
+			switch (expression.NodeType)
+			{
+				//case ExpressionType.Index:
+				//	PropertyInfo indexer = ((IndexExpression)expression).Indexer;
+				//	if (indexer == null || indexer.CanWrite)
+				//	{
+				//		return;
+				//	}
+				//	break;
+				case ExpressionType.MemberAccess:
+					MemberInfo member = ((MemberExpression)expression).Member;
+					PropertyInfo prop = member as PropertyInfo;
+					if (prop != null)
+					{
+						if (prop.CanWrite)
+						{
+							return;
+						}
+					}
+					else
+					{
+						Diagnostics.Debug.Assert(member is FieldInfo);
+						FieldInfo field = (FieldInfo)member;
+						if (!(field.IsInitOnly || field.IsLiteral))
+						{
+							return;
+						}
+					}
+					break;
+				case ExpressionType.Parameter:
+					return;
+			}
+
+			throw new ArgumentException(string.Format("Expression {0} must be writeable", paramName));
+		}
+
+
+		/// <summary>
+		/// Creates a <see cref="BinaryExpression"/> that represents an assignment operation.
+		/// </summary>
+		/// <param name="left">An <see cref="Expression"/> to set the <see cref="BinaryExpression.Left"/> property equal to.</param>
+		/// <param name="right">An <see cref="Expression"/> to set the <see cref="BinaryExpression.Right"/> property equal to.</param>
+		/// <returns>A <see cref="BinaryExpression"/> that has the <see cref="NodeType"/> property equal to <see cref="ExpressionType.Assign"/>
+		/// and the <see cref="BinaryExpression.Left"/> and <see cref="BinaryExpression.Right"/> properties set to the specified values.
+		/// </returns>
+		public static BinaryExpression Assign(Expression left, Expression right)
+		{
+			RequiresCanWrite(left, nameof(left));
+			RequiresCanRead(right, nameof(right));
+
+			/*
+			
+			TypeUtils.ValidateType(left.Type, nameof(left), allowByRef: true, allowPointer: true);
+			TypeUtils.ValidateType(right.Type, nameof(right), allowByRef: true, allowPointer: true);
+			if (!TypeUtils.AreReferenceAssignable(left.Type, right.Type))
+			{
+				throw Error.ExpressionTypeDoesNotMatchAssignment(right.Type, left.Type);
+			}
+			*/
+			return new AssignBinaryExpression(left, right);
+		}
+
+	}
+
+
+
+	internal class AssignBinaryExpression : BinaryExpression
+	{
+		internal AssignBinaryExpression(Expression left, Expression right)
+			: base(ExpressionType.Assign, left.Type, left, right)
+		{
+
+		}
+
+		public static AssignBinaryExpression Make(Expression left, Expression right, bool byRef)
+		{
+			if (byRef)
+			{
+				return new ByRefAssignBinaryExpression(left, right);
+			}
+			else
+			{
+				return new AssignBinaryExpression(left, right);
+			}
+		}
+
+		internal virtual bool IsByRef => false;
+
+		// public override Type Type => Left.Type;
+		// public override ExpressionType NodeType => ExpressionType.Assign;
+	}
+
+	internal class ByRefAssignBinaryExpression : AssignBinaryExpression
+	{
+		internal ByRefAssignBinaryExpression(Expression left, Expression right)
+			: base(left, right)
+		{
+		}
+
+		internal override bool IsByRef => true;
+	}
+
+
+
+	public class BinaryExpression : Expression 
+	{
 
 		Expression left;
 		Expression right;
@@ -411,7 +568,7 @@ namespace System.Linq.Expressions {
 				ig.Emit (OpCodes.Ldc_I4_0);
 				ig.Emit (OpCodes.Ceq);
 				break;
-			case ExpressionType.Equal:
+				case ExpressionType.Equal:
 				ig.Emit (OpCodes.Ceq);
 				break;
 			case ExpressionType.NotEqual:
@@ -747,11 +904,11 @@ namespace System.Linq.Expressions {
 			case ExpressionType.MultiplyChecked:
 			case ExpressionType.RightShift:
 			case ExpressionType.Subtract:
-			case ExpressionType.SubtractChecked:
-				EmitArithmeticBinary (ec);
+				case ExpressionType.SubtractChecked:
+					EmitArithmeticBinary (ec);
 				return;
 			case ExpressionType.Equal:
-			case ExpressionType.GreaterThan:
+				case ExpressionType.GreaterThan:
 			case ExpressionType.GreaterThanOrEqual:
 			case ExpressionType.LessThan:
 			case ExpressionType.LessThanOrEqual:

@@ -48,13 +48,13 @@ namespace System.Linq.Expressions {
 			case ExpressionType.Quote:
 			case ExpressionType.TypeAs:
 			case ExpressionType.UnaryPlus:
-				VisitUnary ((UnaryExpression) expression);
+					VisitUnary ((UnaryExpression) expression);
 				break;
 			case ExpressionType.Add:
 			case ExpressionType.AddChecked:
 			case ExpressionType.Subtract:
-			case ExpressionType.SubtractChecked:
-			case ExpressionType.Multiply:
+				case ExpressionType.SubtractChecked:
+				case ExpressionType.Multiply:
 			case ExpressionType.MultiplyChecked:
 			case ExpressionType.Divide:
 			case ExpressionType.Modulo:
@@ -74,7 +74,7 @@ namespace System.Linq.Expressions {
 			case ExpressionType.RightShift:
 			case ExpressionType.LeftShift:
 			case ExpressionType.ExclusiveOr:
-				VisitBinary ((BinaryExpression) expression);
+					VisitBinary ((BinaryExpression) expression);
 				break;
 			case ExpressionType.TypeIs:
 				VisitTypeIs ((TypeBinaryExpression) expression);

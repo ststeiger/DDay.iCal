@@ -38,7 +38,7 @@ using System.Collections.ObjectModel;
 
 namespace System.Linq
 {
-	public static class Enumerable
+	public static partial class Enumerable
 	{
 		enum Fallback {
 			Default,

@@ -10,6 +10,7 @@
     <RootNamespace>System.Linq</RootNamespace>
     <AssemblyName>System.Linq</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <LangVersion>8</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
@@ -37,6 +40,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Linq\mono-2.8.1\corlib\System\Environment2.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Collections.Concurrent\ConcurrentDictionary.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Collections.Concurrent\Partitioner.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Collections.Generic\ISet.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Collections.Generic\SortedSet.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\ILookup.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IQueryable.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\Zip.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Threading\LockRecursionException.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Threading\LockRecursionPolicy.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Threading\ReaderWriterLockSlim.cs" />
+    <Compile Include="Linq\mono-2.8.1\System.Core\System.Threading\Volatile.cs" />
     <Compile Include="TimeZoneInfo\AdjustmentRule.cs" />
     <Compile Include="TimeZoneInfo\DataMemberAttribute.cs" />
     <Compile Include="Linq\EnhancedDynamic.cs" />
@@ -85,12 +100,9 @@
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\EnumerableQuery_T.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\Grouping.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IGrouping.cs" />
-    <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\ILookup_T.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IOrderedEnumerable_T.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IOrderedQueryable.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IOrderedQueryable_T.cs" />
-    <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IQueryable.cs" />
-    <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IQueryable_T.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\IQueryProvider.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\Lookup.cs" />
     <Compile Include="Linq\mono-2.8.1\System.Core\System.Linq\OrderedEnumerable.cs" />
@@ -116,6 +128,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeZoneInfo\TransitionTime.cs" />
     <Compile Include="TimeZoneInfo\TimeZoneInfo.cs" />
+    <Compile Include="ValueTuple\BitOperations.cs" />
+    <Compile Include="ValueTuple\HashCode.cs" />
+    <Compile Include="ValueTuple\Interop.cs" />
+    <Compile Include="ValueTuple\IStructuralComparable.cs" />
+    <Compile Include="ValueTuple\IStructuralEquatable.cs" />
+    <Compile Include="ValueTuple\ITuple.cs" />
+    <Compile Include="ValueTuple\SR.cs" />
+    <Compile Include="ValueTuple\TupleElementNamesAttribute.cs" />
+    <Compile Include="ValueTuple\TypeForwardedFromAttribute.cs" />
+    <Compile Include="ValueTuple\TypeForwardedToAttribute.cs" />
+    <Compile Include="ValueTuple\ValueTuple.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Linq\mono-2.8.1\corlib\System.Diagnostics\Crap.txt" />

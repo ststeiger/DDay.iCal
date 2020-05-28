@@ -36,361 +36,363 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Linq;
 
-namespace System.Linq {
+namespace System.Linq
+{
 
-	public static class Queryable {
+	public static class Queryable
+	{
 
-		static MethodInfo MakeGeneric (MethodBase method, params Type [] parameters)
+		static MethodInfo MakeGeneric(MethodBase method, params Type[] parameters)
 		{
-			return ((MethodInfo) method).MakeGenericMethod (parameters);
+			return ((MethodInfo)method).MakeGenericMethod(parameters);
 		}
 
-		static Expression StaticCall (MethodInfo method, params Expression [] expressions)
+		static Expression StaticCall(MethodInfo method, params Expression[] expressions)
 		{
-			return Expression.Call (null, method, expressions);
+			return Expression.Call(null, method, expressions);
 		}
 
-		static TRet Execute<TRet, TSource> (this IQueryable<TSource> source, MethodBase current)
+		static TRet Execute<TRet, TSource>(this IQueryable<TSource> source, MethodBase current)
 		{
-			return source.Provider.Execute<TRet> (
-				StaticCall (
-					MakeGeneric (current, typeof (TSource)),
+			return source.Provider.Execute<TRet>(
+				StaticCall(
+					MakeGeneric(current, typeof(TSource)),
 					source.Expression));
 		}
 
 		#region Aggregate
 
-		public static TSource Aggregate<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, TSource, TSource>> func)
+		public static TSource Aggregate<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, TSource, TSource>> func)
 		{
-			Check.SourceAndFunc (source, func);
-			return source.Provider.Execute<TSource> (
-			StaticCall (
-				MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			Check.SourceAndFunc(source, func);
+			return source.Provider.Execute<TSource>(
+			StaticCall(
+				MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 				source.Expression,
-				Expression.Quote (func)));
+				Expression.Quote(func)));
 		}
 
-		public static TAccumulate Aggregate<TSource, TAccumulate> (this IQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func)
+		public static TAccumulate Aggregate<TSource, TAccumulate>(this IQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func)
 		{
-			Check.SourceAndFunc (source, func);
-			return source.Provider.Execute<TAccumulate> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TAccumulate)),
+			Check.SourceAndFunc(source, func);
+			return source.Provider.Execute<TAccumulate>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TAccumulate)),
 					source.Expression,
-					Expression.Constant (seed, typeof (TAccumulate)),
-					Expression.Quote (func)));
+					Expression.Constant(seed, typeof(TAccumulate)),
+					Expression.Quote(func)));
 		}
 
-		public static TResult Aggregate<TSource, TAccumulate, TResult> (this IQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector)
+		public static TResult Aggregate<TSource, TAccumulate, TResult>(this IQueryable<TSource> source, TAccumulate seed, Expression<Func<TAccumulate, TSource, TAccumulate>> func, Expression<Func<TAccumulate, TResult>> selector)
 		{
-			Check.SourceAndFuncAndSelector (source, func, selector);
-			return source.Provider.Execute<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TAccumulate), typeof (TResult)),
+			Check.SourceAndFuncAndSelector(source, func, selector);
+			return source.Provider.Execute<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TAccumulate), typeof(TResult)),
 					source.Expression,
-					Expression.Constant (seed, typeof (TAccumulate)),
-					Expression.Quote (func),
-					Expression.Quote (selector)));
+					Expression.Constant(seed, typeof(TAccumulate)),
+					Expression.Quote(func),
+					Expression.Quote(selector)));
 		}
 
 		#endregion
 
 		#region All
 
-		public static bool All<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static bool All<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<bool> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<bool>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region Any
 
-		public static bool Any<TSource> (this IQueryable<TSource> source)
+		public static bool Any<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<bool> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<bool>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static bool Any<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static bool Any<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<bool> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<bool>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region AsQueryable
 
-		public static IQueryable<TElement> AsQueryable<TElement> (this IEnumerable<TElement> source)
+		public static IQueryable<TElement> AsQueryable<TElement>(this IEnumerable<TElement> source)
 		{
 			if (source == null)
-				throw new ArgumentNullException ("source");
+				throw new ArgumentNullException("source");
 
 			var queryable = source as IQueryable<TElement>;
 			if (queryable != null)
 				return queryable;
 
-			return new QueryableEnumerable<TElement> (source);
+			return new QueryableEnumerable<TElement>(source);
 		}
 
-		public static IQueryable AsQueryable (this IEnumerable source)
+		public static IQueryable AsQueryable(this IEnumerable source)
 		{
 			if (source == null)
-				throw new ArgumentNullException ("source");
+				throw new ArgumentNullException("source");
 
 			var queryable = source as IQueryable;
 			if (queryable != null)
 				return queryable;
 
-			var type = source.GetType ();
+			var type = source.GetType();
 
-			if (!type.IsGenericImplementationOf (typeof (IEnumerable<>)))
-				throw new ArgumentException ("source is not IEnumerable<>");
+			if (!type.IsGenericImplementationOf(typeof(IEnumerable<>)))
+				throw new ArgumentException("source is not IEnumerable<>");
 
-			return (IQueryable) Activator.CreateInstance (
-				typeof (QueryableEnumerable<>).MakeGenericType (type.GetFirstGenericArgument ()), source);
+			return (IQueryable)Activator.CreateInstance(
+				typeof(QueryableEnumerable<>).MakeGenericType(type.GetFirstGenericArgument()), source);
 		}
 
 		#endregion
 
 		#region Average
 
-		public static double Average (this IQueryable<int> source)
+		public static double Average(this IQueryable<int> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<double>(
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static double? Average(this IQueryable<int?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<double?>(
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static double Average(this IQueryable<long> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<double>(
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static double? Average(this IQueryable<long?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<double?>(
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static float Average(this IQueryable<float> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<float>(
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static float? Average(this IQueryable<float?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<float?>(
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
-		public static double Average (this IQueryable<double> source)
+		public static double Average(this IQueryable<double> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<double> (
-				StaticCall (
-				(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<double>(
+				StaticCall(
+				(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
-		public static double? Average (this IQueryable<double?> source)
+		public static double? Average(this IQueryable<double?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<double?> (
-				StaticCall (
-				(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<double?>(
+				StaticCall(
+				(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static decimal Average(this IQueryable<decimal> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<decimal>(
-				StaticCall (
-				(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+				(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static decimal? Average(this IQueryable<decimal?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
 			return source.Provider.Execute<decimal?>(
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 		public static double Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<double>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		public static double? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<double?>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		public static double Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<double>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		public static double? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<double?>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		public static float Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<float>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		public static float? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<float?>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static double Average<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, double>> selector)
+		public static double Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<double> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<double>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static double? Average<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
+		public static double? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<double?> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<double?>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		public static decimal Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<decimal>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		public static decimal? Average<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
 			return source.Provider.Execute<decimal?>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		#endregion
 
 		#region Cast
 
-		public static IQueryable<TResult> Cast<TResult> (this IQueryable source)
+		public static IQueryable<TResult> Cast<TResult>(this IQueryable source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return (IQueryable<TResult>) source.Provider.CreateQuery (
-				StaticCall (MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TResult)),
+			return (IQueryable<TResult>)source.Provider.CreateQuery(
+				StaticCall(MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TResult)),
 					source.Expression));
 		}
 
@@ -398,429 +400,429 @@ namespace System.Linq {
 
 		#region Concat
 
-		public static IQueryable<TSource> Concat<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2)
+		public static IQueryable<TSource> Concat<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>))));
 		}
 
 		#endregion
 
 		#region Contains
 
-		public static bool Contains<TSource> (this IQueryable<TSource> source, TSource item)
+		public static bool Contains<TSource>(this IQueryable<TSource> source, TSource item)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<bool> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<bool>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (item, typeof (TSource))));
+					Expression.Constant(item, typeof(TSource))));
 		}
 
-		public static bool Contains<TSource> (this IQueryable<TSource> source, TSource item, IEqualityComparer<TSource> comparer)
+		public static bool Contains<TSource>(this IQueryable<TSource> source, TSource item, IEqualityComparer<TSource> comparer)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<bool> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<bool>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (item, typeof (TSource)),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TSource>))));
+					Expression.Constant(item, typeof(TSource)),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TSource>))));
 		}
 
 		#endregion
 
 		#region Count
 
-		public static int Count<TSource> (this IQueryable<TSource> source)
+		public static int Count<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Execute<int, TSource> (MethodBase.GetCurrentMethod ());
+			return source.Execute<int, TSource>(MethodBase.GetCurrentMethod());
 		}
 
-		public static int Count<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static int Count<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<int> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<int>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region DefaultIfEmpty
 
-		public static IQueryable<TSource> DefaultIfEmpty<TSource> (this IQueryable<TSource> source)
+		public static IQueryable<TSource> DefaultIfEmpty<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static IQueryable<TSource> DefaultIfEmpty<TSource> (this IQueryable<TSource> source, TSource defaultValue)
+		public static IQueryable<TSource> DefaultIfEmpty<TSource>(this IQueryable<TSource> source, TSource defaultValue)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (defaultValue, typeof (TSource))));
+					Expression.Constant(defaultValue, typeof(TSource))));
 		}
 
 		#endregion
 
 		#region Distinct
 
-		public static IQueryable<TSource> Distinct<TSource> (this IQueryable<TSource> source)
+		public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static IQueryable<TSource> Distinct<TSource> (this IQueryable<TSource> source, IEqualityComparer<TSource> comparer)
+		public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source, IEqualityComparer<TSource> comparer)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (comparer, typeof (IEqualityComparer<TSource>))));
+					Expression.Constant(comparer, typeof(IEqualityComparer<TSource>))));
 		}
 
 		#endregion
 
 		#region ElementAt
 
-		public static TSource ElementAt<TSource> (this IQueryable<TSource> source, int index)
+		public static TSource ElementAt<TSource>(this IQueryable<TSource> source, int index)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (index)));
+					Expression.Constant(index)));
 		}
 
 		#endregion
 
 		#region ElementAtOrDefault
 
-		public static TSource ElementAtOrDefault<TSource> (this IQueryable<TSource> source, int index)
+		public static TSource ElementAtOrDefault<TSource>(this IQueryable<TSource> source, int index)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (index)));
+					Expression.Constant(index)));
 		}
 
 		#endregion
 
 		#region Except
 
-		public static IQueryable<TSource> Except<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2)
+		public static IQueryable<TSource> Except<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>))));
 		}
 
-		public static IQueryable<TSource> Except<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer)
+		public static IQueryable<TSource> Except<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>)),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>)),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TSource>))));
 		}
 
 		#endregion
 
 		#region First
 
-		public static TSource First<TSource> (this IQueryable<TSource> source)
+		public static TSource First<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TSource First<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static TSource First<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region FirstOrDefault
 
-		public static TSource FirstOrDefault<TSource> (this IQueryable<TSource> source)
+		public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TSource FirstOrDefault<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region GroupBy
 
-		public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+		public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return source.Provider.CreateQuery<IGrouping<TKey, TSource>> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return source.Provider.CreateQuery<IGrouping<TKey, TSource>>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector)));
+					Expression.Quote(keySelector)));
 		}
-		public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IEqualityComparer<TKey> comparer)
+		public static IQueryable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IEqualityComparer<TKey> comparer)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return source.Provider.CreateQuery<IGrouping<TKey, TSource>> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return source.Provider.CreateQuery<IGrouping<TKey, TSource>>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TKey>))));
 		}
-		public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector)
+		public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector)
 		{
-			Check.SourceAndKeyElementSelectors (source, keySelector, elementSelector);
+			Check.SourceAndKeyElementSelectors(source, keySelector, elementSelector);
 
 			return source.Provider.CreateQuery<IGrouping<TKey, TElement>>(
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey), typeof (TElement)),
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey), typeof(TElement)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Quote (elementSelector)));
+					Expression.Quote(keySelector),
+					Expression.Quote(elementSelector)));
 		}
-		public static IQueryable<TResult> GroupBy<TSource, TKey, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector)
+		public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector)
 		{
-			Check.SourceAndKeyResultSelectors (source, keySelector, resultSelector);
+			Check.SourceAndKeyResultSelectors(source, keySelector, resultSelector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Quote (resultSelector)));
+					Expression.Quote(keySelector),
+					Expression.Quote(resultSelector)));
 		}
-		public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, IEqualityComparer<TKey> comparer)
+		public static IQueryable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, IEqualityComparer<TKey> comparer)
 		{
-			Check.SourceAndKeyElementSelectors (source, keySelector, elementSelector);
+			Check.SourceAndKeyElementSelectors(source, keySelector, elementSelector);
 
-			return source.Provider.CreateQuery<IGrouping<TKey, TElement>> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey), typeof (TElement)),
+			return source.Provider.CreateQuery<IGrouping<TKey, TElement>>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey), typeof(TElement)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Quote (elementSelector),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Quote(elementSelector),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TKey>))));
 		}
-		public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
+		public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector)
 		{
-			Check.GroupBySelectors (source, keySelector, elementSelector, resultSelector);
+			Check.GroupBySelectors(source, keySelector, elementSelector, resultSelector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey), typeof (TElement), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey), typeof(TElement), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Quote (elementSelector),
-					Expression.Quote (resultSelector)));
+					Expression.Quote(keySelector),
+					Expression.Quote(elementSelector),
+					Expression.Quote(resultSelector)));
 		}
 
-		public static IQueryable<TResult> GroupBy<TSource, TKey, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
+		public static IQueryable<TResult> GroupBy<TSource, TKey, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
 		{
-			Check.SourceAndKeyResultSelectors (source, keySelector, resultSelector);
+			Check.SourceAndKeyResultSelectors(source, keySelector, resultSelector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Quote (resultSelector),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Quote(resultSelector),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TKey>))));
 		}
-		public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
+		public static IQueryable<TResult> GroupBy<TSource, TKey, TElement, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, IEnumerable<TElement>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
 		{
-			Check.GroupBySelectors (source, keySelector, elementSelector, resultSelector);
+			Check.GroupBySelectors(source, keySelector, elementSelector, resultSelector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey), typeof (TElement), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey), typeof(TElement), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Quote (elementSelector),
-					Expression.Quote (resultSelector),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Quote(elementSelector),
+					Expression.Quote(resultSelector),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TKey>))));
 		}
 		#endregion
 
 		#region GroupJoin
 
-		public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult> (this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
+		public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
 		{
 			if (outer == null)
-				throw new ArgumentNullException ("outer");
+				throw new ArgumentNullException("outer");
 			if (inner == null)
-				throw new ArgumentNullException ("inner");
+				throw new ArgumentNullException("inner");
 			if (outerKeySelector == null)
-				throw new ArgumentNullException ("outerKeySelector");
+				throw new ArgumentNullException("outerKeySelector");
 			if (innerKeySelector == null)
-				throw new ArgumentNullException ("innerKeySelector");
+				throw new ArgumentNullException("innerKeySelector");
 			if (resultSelector == null)
-				throw new ArgumentNullException ("resultSelector");
+				throw new ArgumentNullException("resultSelector");
 
-			return outer.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TOuter), typeof (TInner), typeof (TKey), typeof (TResult)),
+			return outer.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult)),
 					outer.Expression,
-					Expression.Constant (inner, typeof (IEnumerable<TInner>)),
-					Expression.Quote (outerKeySelector),
-					Expression.Quote (innerKeySelector),
-					Expression.Quote (resultSelector)));
+					Expression.Constant(inner, typeof(IEnumerable<TInner>)),
+					Expression.Quote(outerKeySelector),
+					Expression.Quote(innerKeySelector),
+					Expression.Quote(resultSelector)));
 		}
 
-		public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult> (this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
+		public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
 		{
 			if (outer == null)
-				throw new ArgumentNullException ("outer");
+				throw new ArgumentNullException("outer");
 			if (inner == null)
-				throw new ArgumentNullException ("inner");
+				throw new ArgumentNullException("inner");
 			if (outerKeySelector == null)
-				throw new ArgumentNullException ("outerKeySelector");
+				throw new ArgumentNullException("outerKeySelector");
 			if (innerKeySelector == null)
-				throw new ArgumentNullException ("innerKeySelector");
+				throw new ArgumentNullException("innerKeySelector");
 			if (resultSelector == null)
-				throw new ArgumentNullException ("resultSelector");
+				throw new ArgumentNullException("resultSelector");
 
-			return outer.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TOuter), typeof (TInner), typeof (TKey), typeof (TResult)),
+			return outer.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult)),
 					outer.Expression,
-					Expression.Constant (inner, typeof (IEnumerable<TInner>)),
-					Expression.Quote (outerKeySelector),
-					Expression.Quote (innerKeySelector),
-					Expression.Quote (resultSelector),
-					Expression.Constant (comparer)));
+					Expression.Constant(inner, typeof(IEnumerable<TInner>)),
+					Expression.Quote(outerKeySelector),
+					Expression.Quote(innerKeySelector),
+					Expression.Quote(resultSelector),
+					Expression.Constant(comparer)));
 		}
 
 		#endregion
 
 		#region Intersect
 
-		public static IQueryable<TSource> Intersect<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2)
+		public static IQueryable<TSource> Intersect<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>))));
 		}
 
-		public static IQueryable<TSource> Intersect<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer)
+		public static IQueryable<TSource> Intersect<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>)),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>)),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TSource>))));
 		}
 
 		#endregion
 
 		#region Join
 
-		public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult> (this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+		public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
 		{
-			Check.JoinSelectors (outer, inner, outerKeySelector, innerKeySelector, resultSelector);
+			Check.JoinSelectors(outer, inner, outerKeySelector, innerKeySelector, resultSelector);
 
-			return outer.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TOuter), typeof (TInner), typeof (TKey), typeof (TResult)),
+			return outer.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult)),
 					outer.Expression,
-					Expression.Constant (inner, typeof (IEnumerable<TInner>)),
-					Expression.Quote (outerKeySelector),
-					Expression.Quote (innerKeySelector),
-					Expression.Quote (resultSelector)));
+					Expression.Constant(inner, typeof(IEnumerable<TInner>)),
+					Expression.Quote(outerKeySelector),
+					Expression.Quote(innerKeySelector),
+					Expression.Quote(resultSelector)));
 		}
 
-		public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult> (this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
+		public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector, IEqualityComparer<TKey> comparer)
 		{
-			Check.JoinSelectors (outer, inner, outerKeySelector, innerKeySelector, resultSelector);
+			Check.JoinSelectors(outer, inner, outerKeySelector, innerKeySelector, resultSelector);
 
-			return outer.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TOuter), typeof (TInner), typeof (TKey), typeof (TResult)),
+			return outer.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult)),
 					outer.Expression,
-					Expression.Constant (inner, typeof (IEnumerable<TInner>)),
-					Expression.Quote (outerKeySelector),
-					Expression.Quote (innerKeySelector),
-					Expression.Quote (resultSelector),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TKey>))));
+					Expression.Constant(inner, typeof(IEnumerable<TInner>)),
+					Expression.Quote(outerKeySelector),
+					Expression.Quote(innerKeySelector),
+					Expression.Quote(resultSelector),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TKey>))));
 		}
 
 
@@ -828,97 +830,97 @@ namespace System.Linq {
 
 		#region Last
 
-		public static TSource Last<TSource> (this IQueryable<TSource> source)
+		public static TSource Last<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TSource Last<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static TSource Last<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region LastOrDefault
 
-		public static TSource LastOrDefault<TSource> (this IQueryable<TSource> source)
+		public static TSource LastOrDefault<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TSource LastOrDefault<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static TSource LastOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region LongCount
 
-		public static long LongCount<TSource> (this IQueryable<TSource> source)
+		public static long LongCount<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Execute<long, TSource> (MethodBase.GetCurrentMethod ());
+			return source.Execute<long, TSource>(MethodBase.GetCurrentMethod());
 		}
 
-		public static long LongCount<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static long LongCount<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<long> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<long>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region Max
 
-		public static TSource Max<TSource> (this IQueryable<TSource> source)
+		public static TSource Max<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TResult Max<TSource, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+		public static TResult Max<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TResult)),
+			return source.Provider.Execute<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 
@@ -926,25 +928,25 @@ namespace System.Linq {
 
 		#region Min
 
-		public static TSource Min<TSource> (this IQueryable<TSource> source)
+		public static TSource Min<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TResult Min<TSource, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+		public static TResult Min<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TResult)),
+			return source.Provider.Execute<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 
@@ -952,13 +954,13 @@ namespace System.Linq {
 
 		#region OfType
 
-		public static IQueryable<TResult> OfType<TResult> (this IQueryable source)
+		public static IQueryable<TResult> OfType<TResult>(this IQueryable source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return (IQueryable<TResult>) source.Provider.CreateQuery (
-			StaticCall (
-				MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TResult)),
+			return (IQueryable<TResult>)source.Provider.CreateQuery(
+			StaticCall(
+				MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TResult)),
 				source.Expression));
 		}
 
@@ -966,67 +968,67 @@ namespace System.Linq {
 
 		#region OrderBy
 
-		public static IOrderedQueryable<TSource> OrderBy<TSource, TKey> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+		public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector)));
+					Expression.Quote(keySelector)));
 		}
 
-		public static IOrderedQueryable<TSource> OrderBy<TSource, TKey> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+		public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Constant (comparer, typeof (IComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Constant(comparer, typeof(IComparer<TKey>))));
 		}
 
 		#endregion
 
 		#region OrderByDescending
 
-		public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+		public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector)));
+					Expression.Quote(keySelector)));
 		}
 
-		public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey> (this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+		public static IOrderedQueryable<TSource> OrderByDescending<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Constant (comparer, typeof (IComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Constant(comparer, typeof(IComparer<TKey>))));
 		}
 
 		#endregion
 
 		#region Reverse
 
-		public static IQueryable<TSource> Reverse<TSource> (this IQueryable<TSource> source)
+		public static IQueryable<TSource> Reverse<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
@@ -1034,194 +1036,194 @@ namespace System.Linq {
 
 		#region Select
 
-		public static IQueryable<TResult> Select<TSource, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+		public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static IQueryable<TResult> Select<TSource, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector)
+		public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
 		#endregion
 
 		#region SelectMany
 
-		public static IQueryable<TResult> SelectMany<TSource, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector)
+		public static IQueryable<TResult> SelectMany<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TResult>>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static IQueryable<TResult> SelectMany<TSource, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector)
+		public static IQueryable<TResult> SelectMany<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TResult>>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
+		public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
 		{
-			Check.SourceAndCollectionSelectorAndResultSelector (source, collectionSelector, resultSelector);
+			Check.SourceAndCollectionSelectorAndResultSelector(source, collectionSelector, resultSelector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TCollection), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TCollection), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (collectionSelector),
-					Expression.Quote (resultSelector)));
+					Expression.Quote(collectionSelector),
+					Expression.Quote(resultSelector)));
 		}
 
-		public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult> (this IQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
+		public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector)
 		{
-			Check.SourceAndCollectionSelectorAndResultSelector (source, collectionSelector, resultSelector);
+			Check.SourceAndCollectionSelectorAndResultSelector(source, collectionSelector, resultSelector);
 
-			return source.Provider.CreateQuery<TResult> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TCollection), typeof (TResult)),
+			return source.Provider.CreateQuery<TResult>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TCollection), typeof(TResult)),
 					source.Expression,
-					Expression.Quote (collectionSelector),
-					Expression.Quote (resultSelector)));
+					Expression.Quote(collectionSelector),
+					Expression.Quote(resultSelector)));
 		}
 
 		#endregion
 
 		#region SequenceEqual
 
-		public static bool SequenceEqual<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2)
+		public static bool SequenceEqual<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.Execute<bool> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.Execute<bool>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>))));
 		}
 
-		public static bool SequenceEqual<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer)
+		public static bool SequenceEqual<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.Execute<bool> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.Execute<bool>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>)),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>)),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TSource>))));
 		}
 
 		#endregion
 
 		#region Single
 
-		public static TSource Single<TSource> (this IQueryable<TSource> source)
+		public static TSource Single<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TSource Single<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static TSource Single<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region SingleOrDefault
 
-		public static TSource SingleOrDefault<TSource> (this IQueryable<TSource> source)
+		public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression));
 		}
 
-		public static TSource SingleOrDefault<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.Execute<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region Skip
 
-		public static IQueryable<TSource> Skip<TSource> (this IQueryable<TSource> source, int count)
+		public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, int count)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (count)));
+					Expression.Constant(count)));
 		}
 
 		#endregion
 
 		#region SkipWhile
 
-		public static IQueryable<TSource> SkipWhile<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static IQueryable<TSource> SkipWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
-		public static IQueryable<TSource> SkipWhile<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate)
+		public static IQueryable<TSource> SkipWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 
@@ -1230,223 +1232,223 @@ namespace System.Linq {
 		#region Sum
 
 
-		public static int Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, int>> selector)
+		public static int Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<int> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<int>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static int? Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector)
+		public static int? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<int?> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<int?>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static long Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, long>> selector)
+		public static long Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<long> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<long>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static long? Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector)
+		public static long? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<long?> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<long?>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static float Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, float>> selector)
+		public static float Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<float> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<float>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static float? Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector)
+		public static float? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<float?> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<float?>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static double Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, double>> selector)
+		public static double Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<double> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<double>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static double? Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
+		public static double? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<double?> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<double?>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static decimal Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector)
+		public static decimal Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<decimal> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<decimal>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static decimal? Sum<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector)
+		public static decimal? Sum<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector)
 		{
-			Check.SourceAndSelector (source, selector);
+			Check.SourceAndSelector(source, selector);
 
-			return source.Provider.Execute<decimal?> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.Execute<decimal?>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (selector)));
+					Expression.Quote(selector)));
 		}
 
-		public static int Sum (this IQueryable<int> source)
+		public static int Sum(this IQueryable<int> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<int> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<int>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
-		public static int? Sum (this IQueryable<int?> source)
+		public static int? Sum(this IQueryable<int?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<int?> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
-					source.Expression));
-		}
-
-
-
-		public static long Sum (this IQueryable<long> source)
-		{
-			Check.Source (source);
-
-			return source.Provider.Execute<long> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<int?>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 
 
-		public static long? Sum (this IQueryable<long?> source)
+		public static long Sum(this IQueryable<long> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<long?> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
-					source.Expression));
-		}
-
-		public static float Sum (this IQueryable<float> source)
-		{
-			Check.Source (source);
-
-			return source.Provider.Execute<float> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
-					source.Expression));
-		}
-
-		public static float? Sum (this IQueryable<float?> source)
-		{
-			Check.Source (source);
-
-			return source.Provider.Execute<float?> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
-					source.Expression));
-		}
-
-
-		public static double Sum (this IQueryable<double> source)
-		{
-			Check.Source (source);
-
-			return source.Provider.Execute<double> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<long>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 
 
-		public static double? Sum (this IQueryable<double?> source)
+		public static long? Sum(this IQueryable<long?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<double?> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<long?>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
+					source.Expression));
+		}
+
+		public static float Sum(this IQueryable<float> source)
+		{
+			Check.Source(source);
+
+			return source.Provider.Execute<float>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
+					source.Expression));
+		}
+
+		public static float? Sum(this IQueryable<float?> source)
+		{
+			Check.Source(source);
+
+			return source.Provider.Execute<float?>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 
-		public static decimal Sum (this IQueryable<decimal> source)
+		public static double Sum(this IQueryable<double> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<decimal> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<double>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
 
 
-		public static decimal? Sum (this IQueryable<decimal?> source)
+		public static double? Sum(this IQueryable<double?> source)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.Execute<decimal?> (
-				StaticCall (
-					(MethodInfo) MethodBase.GetCurrentMethod (),
+			return source.Provider.Execute<double?>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
+					source.Expression));
+		}
+
+
+		public static decimal Sum(this IQueryable<decimal> source)
+		{
+			Check.Source(source);
+
+			return source.Provider.Execute<decimal>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
+					source.Expression));
+		}
+
+
+
+		public static decimal? Sum(this IQueryable<decimal?> source)
+		{
+			Check.Source(source);
+
+			return source.Provider.Execute<decimal?>(
+				StaticCall(
+					(MethodInfo)MethodBase.GetCurrentMethod(),
 					source.Expression));
 		}
 
@@ -1456,122 +1458,122 @@ namespace System.Linq {
 
 		#region Take
 
-		public static IQueryable<TSource> Take<TSource> (this IQueryable<TSource> source, int count)
+		public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, int count)
 		{
-			Check.Source (source);
+			Check.Source(source);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Constant (count)));
+					Expression.Constant(count)));
 		}
 
 		#endregion
 
 		#region TakeWhile
 
-		public static IQueryable<TSource> TakeWhile<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static IQueryable<TSource> TakeWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
-		public static IQueryable<TSource> TakeWhile<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate)
+		public static IQueryable<TSource> TakeWhile<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 		#endregion
 
 		#region ThenBy
 
-		public static IOrderedQueryable<TSource> ThenBy<TSource, TKey> (this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+		public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector)));
+					Expression.Quote(keySelector)));
 		}
 
-		public static IOrderedQueryable<TSource> ThenBy<TSource, TKey> (this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+		public static IOrderedQueryable<TSource> ThenBy<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Constant (comparer, typeof (IComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Constant(comparer, typeof(IComparer<TKey>))));
 		}
 
 		#endregion
 
 		#region ThenByDescending
 
-		public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey> (this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+		public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector)));
+					Expression.Quote(keySelector)));
 		}
 
-		public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey> (this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
+		public static IOrderedQueryable<TSource> ThenByDescending<TSource, TKey>(this IOrderedQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, IComparer<TKey> comparer)
 		{
-			Check.SourceAndKeySelector (source, keySelector);
+			Check.SourceAndKeySelector(source, keySelector);
 
-			return (IOrderedQueryable<TSource>) source.Provider.CreateQuery (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource), typeof (TKey)),
+			return (IOrderedQueryable<TSource>)source.Provider.CreateQuery(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource), typeof(TKey)),
 					source.Expression,
-					Expression.Quote (keySelector),
-					Expression.Constant (comparer, typeof (IComparer<TKey>))));
+					Expression.Quote(keySelector),
+					Expression.Constant(comparer, typeof(IComparer<TKey>))));
 		}
 
 		#endregion
 
 		#region Union
 
-		public static IQueryable<TSource> Union<TSource> (this IQueryable<TSource> source1, IEnumerable<TSource> source2)
+		public static IQueryable<TSource> Union<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>))));
 		}
 
 		public static IQueryable<TSource> Union<TSource>(this IQueryable<TSource> source1, IEnumerable<TSource> source2, IEqualityComparer<TSource> comparer)
 		{
-			Check.Source1AndSource2 (source1, source2);
+			Check.Source1AndSource2(source1, source2);
 
-			return source1.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source1.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source1.Expression,
-					Expression.Constant (source2, typeof (IEnumerable<TSource>)),
-					Expression.Constant (comparer, typeof (IEqualityComparer<TSource>))));
+					Expression.Constant(source2, typeof(IEnumerable<TSource>)),
+					Expression.Constant(comparer, typeof(IEqualityComparer<TSource>))));
 		}
 
 
@@ -1579,32 +1581,32 @@ namespace System.Linq {
 
 		#region Where
 
-		public static IQueryable<TSource> Where<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+		public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
-		public static IQueryable<TSource> Where<TSource> (this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate)
+		public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int, bool>> predicate)
 		{
-			Check.SourceAndPredicate (source, predicate);
+			Check.SourceAndPredicate(source, predicate);
 
-			return source.Provider.CreateQuery<TSource> (
-				StaticCall (
-					MakeGeneric (MethodBase.GetCurrentMethod (), typeof (TSource)),
+			return source.Provider.CreateQuery<TSource>(
+				StaticCall(
+					MakeGeneric(MethodBase.GetCurrentMethod(), typeof(TSource)),
 					source.Expression,
-					Expression.Quote (predicate)));
+					Expression.Quote(predicate)));
 		}
 
 
 		#endregion
 
-#if NET_4_0
+
 		#region Zip
 
 		public static IQueryable<TResult> Zip<TFirst, TSecond, TResult> (this IQueryable<TFirst> source1, IEnumerable<TSecond> source2, Expression<Func<TFirst, TSecond, TResult>> resultSelector)
@@ -1621,6 +1623,6 @@ namespace System.Linq {
 		}
 
 		#endregion
-#endif
+
 	}
 }
